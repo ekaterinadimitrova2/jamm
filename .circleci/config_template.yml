@@ -160,8 +160,6 @@ commands:
             free -m
             echo '*** df -m ***'
             df -m
-            echo '*** ifconfig -a ***'
-            ifconfig -a
             echo '*** uname -a ***'
             uname -a
             echo '*** mount ***'
