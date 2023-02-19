@@ -41,10 +41,10 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get install -y locales && \
     locale-gen en_US.UTF-8
 
-# openjdk + mvn
+# openjdk + maven
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
-    apt-get install -y --no-install-recommends openjdk-8-jdk openjdk-11-jdk openjdk-17-jdk mvn
+    apt-get install -y --no-install-recommends openjdk-8-jdk openjdk-11-jdk openjdk-17-jdk maven
 
 # make Java 8 the default executable (we use to run all tests against Java 8)
 RUN update-java-alternatives --set java-1.8.0-openjdk-$(dpkg --print-architecture)
