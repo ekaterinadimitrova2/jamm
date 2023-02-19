@@ -19,6 +19,17 @@ RUN echo 'APT::Acquire::Retries "99";' > /etc/apt/apt.conf.d/80-retries
 RUN echo 'Acquire::http::Timeout "60";' > /etc/apt/apt.conf.d/80proxy.conf
 RUN echo 'Acquire::ftp::Timeout "60";' >> /etc/apt/apt.conf.d/80proxy.conf
 
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends software-properties-common apt-utils vim && \
+    apt-get install -y lsof
+
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt-get update && \
+    apt-get install -y curl git-core \
+        net-tools libev4 libev-dev wget gcc libssl-dev libxml2 libxslt1-dev
+
 # install dumb-init as minimal init system
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
