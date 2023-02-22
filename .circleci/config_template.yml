@@ -171,6 +171,7 @@ commands:
             echo '*** java ***'
             which java
             java -version
+            maven -version
 
   clone_jamm:
     steps:
