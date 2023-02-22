@@ -30,7 +30,7 @@ jobs:
           echo '*** java ***'
           which java
           java -version
-          maven -version
+          mvn -version
     - run:
         name: Clone Jamm Repository (via git)
         command: |
@@ -92,7 +92,7 @@ jobs:
           echo '*** java ***'
           which java
           java -version
-          maven -version
+          mvn -version
     - run:
         name: Run Tests
         command: |
@@ -147,7 +147,7 @@ jobs:
           echo '*** java ***'
           which java
           java -version
-          maven -version
+          mvn -version
     - run:
         name: Run JMH Tests
         command: |
@@ -202,7 +202,7 @@ jobs:
           echo '*** java ***'
           which java
           java -version
-          maven -version
+          mvn -version
     - run:
         name: Run Tests
         command: |
@@ -257,7 +257,7 @@ jobs:
           echo '*** java ***'
           which java
           java -version
-          maven -version
+          mvn -version
     - run:
         name: Run JMH Tests
         command: |
@@ -312,7 +312,7 @@ jobs:
           echo '*** java ***'
           which java
           java -version
-          maven -version
+          mvn -version
     - run:
         name: Run Tests
         command: |
@@ -367,7 +367,7 @@ jobs:
           echo '*** java ***'
           which java
           java -version
-          maven -version
+          mvn -version
     - run:
         name: Run JMH Tests
         command: |
@@ -651,7 +651,7 @@ workflows:
 #             echo '*** java ***'
 #             which java
 #             java -version
-#             maven -version
+#             mvn -version
 # 
 #   clone_jamm:
 #     steps:
