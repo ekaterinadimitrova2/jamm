@@ -39,6 +39,12 @@ test_jobs: &test_jobs
         requires:
           - start_j8_tests
           - j8_build
+    - start_j8_jmh_tests:
+        type: approval
+    - j8_jmh_tests:
+        requires:
+          - start_j8_jmh_tests
+          - j8_build
     # Java 11 tests
     - start_j11_tests:
         type: approval
@@ -46,12 +52,24 @@ test_jobs: &test_jobs
         requires:
           - start_j11_tests
           - j8_build
+    - start_j11_jmh_tests:
+        type: approval
+    - j11_jmh_tests:
+        requires:
+          - start_j11_jmh_tests
+          - j8_build
     # Java 17 tests
     - start_j17_tests:
         type: approval
     - j17_tests:
         requires:
           - start_j17_tests
+          - j8_build
+    - start_j17_jmh_tests:
+        type: approval
+    - j17_jmh_tests:
+        requires:
+          - start_j17_jmh_tests
           - j8_build
 
 workflows:
@@ -65,7 +83,7 @@ executors:
         type: string
         default: medium
     docker:
-      - image: edimitrova86/jamm-testing:latest
+      - image: edimitrova86/jamm-testing-ubuntu2210:latest
     resource_class: << parameters.exec_resource_class >>
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
@@ -80,7 +98,7 @@ executors:
         type: string
         default: medium
     docker:
-      - image: edimitrova86/jamm-testing:latest
+      - image: edimitrova86/jamm-testing-ubuntu2210:latest
     resource_class: << parameters.exec_resource_class >>
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
@@ -95,7 +113,7 @@ executors:
         type: string
         default: medium
     docker:
-      - image: edimitrova86/jamm-testing:latest
+      - image: edimitrova86/jamm-testing-ubuntu2210:latest
     resource_class: << parameters.exec_resource_class >>
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
@@ -129,6 +147,14 @@ jobs:
       - log_environment
       - run_tests
 
+  j8_jmh_tests:
+    <<: *j8_small_executor
+    steps:
+      - attach_workspace:
+          at: /home/jamm
+      - log_environment
+      - run_jmh_tests
+
   j11_tests:
     <<: *j11_small_executor
     steps:
@@ -136,6 +162,14 @@ jobs:
           at: /home/jamm
       - log_environment
       - run_tests
+
+  j11_jmh_tests:
+    <<: *j11_small_executor
+    steps:
+      - attach_workspace:
+          at: /home/jamm
+      - log_environment
+      - run_jmh_tests
 
   j17_tests:
     <<: *j17_small_executor
@@ -145,6 +179,13 @@ jobs:
       - log_environment
       - run_tests
 
+  j17_jmh_tests:
+    <<: *j17_small_executor
+    steps:
+      - attach_workspace:
+          at: /home/jamm
+      - log_environment
+      - run_jmh_tests
 
 commands:
   log_environment:
@@ -209,6 +250,27 @@ commands:
             time mv ~/jamm /tmp
             cd /tmp/jamm
             mvn test
+          no_output_timeout: <<parameters.no_output_timeout>>
+      - store_test_results:
+          path: /tmp/jamm/test/output/
+      - store_artifacts:
+          path: /tmp/jamm/test/logs
+          destination: logs
+
+  run_jmh_tests:
+    parameters:
+      no_output_timeout:
+        type: string
+        default: 30m
+    steps:
+      - run:
+          name: Run JMH Tests
+          command: |
+            set -x
+            export PATH=$JAVA_HOME/bin:$PATH
+            time mv ~/jamm /tmp
+            cd /tmp/jamm
+            mvn jmh:benchmark
           no_output_timeout: <<parameters.no_output_timeout>>
       - store_test_results:
           path: /tmp/jamm/test/output/
