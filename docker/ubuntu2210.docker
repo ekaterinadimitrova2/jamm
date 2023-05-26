@@ -11,7 +11,7 @@
 # limitations under the License.
 
 FROM ubuntu:22.10
-# Maintainer: TBD; jamm is not official asf project...
+# Maintainer: TBD
 MAINTAINER Apache Cassandra <dev@cassandra.apache.org>
 
 # configure apt to retry downloads
@@ -43,7 +43,11 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 # openjdk + maven
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
-    apt-get install -y --no-install-recommends openjdk-8-jdk openjdk-11-jdk openjdk-17-jdk maven
+    apt-get install -y --no-install-recommends openjdk-8-jdk openjdk-11-jdk openjdk-17-jdk maven openjdk-11-jdk:i386 openjdk-17-jdk:i386 openjdk-8-jdk:i386
+# we hit this bug - https://bugs.launched.net/ubutu/+source/openjdk-8/+bug/1890592 so we run the mention workaround
+RUN export DEBIAN_FRONTEND=noninteractive && \
+    sudo apt -o=Dpkg::Options::="--force-overwrite" --fix-broken install
+
 
 # make Java 8 the default executable (we use to run all tests against Java 8)
 RUN update-java-alternatives --set java-1.8.0-openjdk-$(dpkg --print-architecture)
