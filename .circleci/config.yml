@@ -2,7 +2,7 @@ version: 2
 jobs:
   j8_build:
     docker:
-    - image: edimitrova86/jamm-testing-ubuntu2210:latest
+    - image: edimitrova86/jamm-testing:latest
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
@@ -62,7 +62,7 @@ jobs:
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_tests:
     docker:
-    - image: edimitrova86/jamm-testing-ubuntu2210:latest
+    - image: edimitrova86/jamm-testing:latest
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
@@ -92,7 +92,10 @@ jobs:
           echo '*** java ***'
           which java
           java -version
+<<<<<<< HEAD
           mvn -version
+=======
+>>>>>>> parent of ef6c1c3 (Change test image to the new one; add jobs for JMH tests)
     - run:
         name: Run Tests
         command: |
@@ -115,6 +118,7 @@ jobs:
     - DEFAULT_DIR: /home/jamm/jamm-test
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+<<<<<<< HEAD
   j8_jmh_tests:
     docker:
     - image: edimitrova86/jamm-testing-ubuntu2210:latest
@@ -170,9 +174,11 @@ jobs:
     - DEFAULT_DIR: /home/jamm/jamm-test
     - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+=======
+>>>>>>> parent of ef6c1c3 (Change test image to the new one; add jobs for JMH tests)
   j11_tests:
     docker:
-    - image: edimitrova86/jamm-testing-ubuntu2210:latest
+    - image: edimitrova86/jamm-testing:latest
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
@@ -202,7 +208,10 @@ jobs:
           echo '*** java ***'
           which java
           java -version
+<<<<<<< HEAD
           mvn -version
+=======
+>>>>>>> parent of ef6c1c3 (Change test image to the new one; add jobs for JMH tests)
     - run:
         name: Run Tests
         command: |
@@ -225,6 +234,7 @@ jobs:
     - DEFAULT_DIR: /home/jamm/jamm-test
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+<<<<<<< HEAD
   j11_jmh_tests:
     docker:
     - image: edimitrova86/jamm-testing-ubuntu2210:latest
@@ -280,9 +290,11 @@ jobs:
     - DEFAULT_DIR: /home/jamm/jamm-test
     - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+=======
+>>>>>>> parent of ef6c1c3 (Change test image to the new one; add jobs for JMH tests)
   j17_tests:
     docker:
-    - image: edimitrova86/jamm-testing-ubuntu2210:latest
+    - image: edimitrova86/jamm-testing:latest
     resource_class: medium
     working_directory: ~/
     shell: /bin/bash -eo pipefail -l
@@ -312,7 +324,10 @@ jobs:
           echo '*** java ***'
           which java
           java -version
+<<<<<<< HEAD
           mvn -version
+=======
+>>>>>>> parent of ef6c1c3 (Change test image to the new one; add jobs for JMH tests)
     - run:
         name: Run Tests
         command: |
@@ -335,6 +350,7 @@ jobs:
     - DEFAULT_DIR: /home/jamm/jamm-test
     - JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+<<<<<<< HEAD
   j17_jmh_tests:
     docker:
     - image: edimitrova86/jamm-testing-ubuntu2210:latest
@@ -390,6 +406,8 @@ jobs:
     - DEFAULT_DIR: /home/jamm/jamm-test
     - JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
     - JDK_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+=======
+>>>>>>> parent of ef6c1c3 (Change test image to the new one; add jobs for JMH tests)
 workflows:
   version: 2
   jamm_tests:
@@ -405,35 +423,17 @@ workflows:
         requires:
         - start_j8_tests
         - j8_build
-    - start_j8_jmh_tests:
-        type: approval
-    - j8_jmh_tests:
-        requires:
-        - start_j8_jmh_tests
-        - j8_build
     - start_j11_tests:
         type: approval
     - j11_tests:
         requires:
         - start_j11_tests
         - j8_build
-    - start_j11_jmh_tests:
-        type: approval
-    - j11_jmh_tests:
-        requires:
-        - start_j11_jmh_tests
-        - j8_build
     - start_j17_tests:
         type: approval
     - j17_tests:
         requires:
         - start_j17_tests
-        - j8_build
-    - start_j17_jmh_tests:
-        type: approval
-    - j17_jmh_tests:
-        requires:
-        - start_j17_jmh_tests
         - j8_build
 
 # Original config.yml file:
@@ -478,12 +478,6 @@ workflows:
 #         requires:
 #           - start_j8_tests
 #           - j8_build
-#     - start_j8_jmh_tests:
-#         type: approval
-#     - j8_jmh_tests:
-#         requires:
-#           - start_j8_jmh_tests
-#           - j8_build
 #     # Java 11 tests
 #     - start_j11_tests:
 #         type: approval
@@ -491,24 +485,12 @@ workflows:
 #         requires:
 #           - start_j11_tests
 #           - j8_build
-#     - start_j11_jmh_tests:
-#         type: approval
-#     - j11_jmh_tests:
-#         requires:
-#           - start_j11_jmh_tests
-#           - j8_build
 #     # Java 17 tests
 #     - start_j17_tests:
 #         type: approval
 #     - j17_tests:
 #         requires:
 #           - start_j17_tests
-#           - j8_build
-#     - start_j17_jmh_tests:
-#         type: approval
-#     - j17_jmh_tests:
-#         requires:
-#           - start_j17_jmh_tests
 #           - j8_build
 # 
 # workflows:
@@ -522,7 +504,7 @@ workflows:
 #         type: string
 #         default: medium
 #     docker:
-#       - image: edimitrova86/jamm-testing-ubuntu2210:latest
+#       - image: edimitrova86/jamm-testing:latest
 #     resource_class: << parameters.exec_resource_class >>
 #     working_directory: ~/
 #     shell: /bin/bash -eo pipefail -l
@@ -537,7 +519,7 @@ workflows:
 #         type: string
 #         default: medium
 #     docker:
-#       - image: edimitrova86/jamm-testing-ubuntu2210:latest
+#       - image: edimitrova86/jamm-testing:latest
 #     resource_class: << parameters.exec_resource_class >>
 #     working_directory: ~/
 #     shell: /bin/bash -eo pipefail -l
@@ -552,7 +534,7 @@ workflows:
 #         type: string
 #         default: medium
 #     docker:
-#       - image: edimitrova86/jamm-testing-ubuntu2210:latest
+#       - image: edimitrova86/jamm-testing:latest
 #     resource_class: << parameters.exec_resource_class >>
 #     working_directory: ~/
 #     shell: /bin/bash -eo pipefail -l
@@ -586,14 +568,6 @@ workflows:
 #       - log_environment
 #       - run_tests
 # 
-#   j8_jmh_tests:
-#     <<: *j8_small_executor
-#     steps:
-#       - attach_workspace:
-#           at: /home/jamm
-#       - log_environment
-#       - run_jmh_tests
-# 
 #   j11_tests:
 #     <<: *j11_small_executor
 #     steps:
@@ -601,14 +575,6 @@ workflows:
 #           at: /home/jamm
 #       - log_environment
 #       - run_tests
-# 
-#   j11_jmh_tests:
-#     <<: *j11_small_executor
-#     steps:
-#       - attach_workspace:
-#           at: /home/jamm
-#       - log_environment
-#       - run_jmh_tests
 # 
 #   j17_tests:
 #     <<: *j17_small_executor
@@ -618,13 +584,6 @@ workflows:
 #       - log_environment
 #       - run_tests
 # 
-#   j17_jmh_tests:
-#     <<: *j17_small_executor
-#     steps:
-#       - attach_workspace:
-#           at: /home/jamm
-#       - log_environment
-#       - run_jmh_tests
 # 
 # commands:
 #   log_environment:
@@ -651,7 +610,10 @@ workflows:
 #             echo '*** java ***'
 #             which java
 #             java -version
+<<<<<<< HEAD
 #             mvn -version
+=======
+>>>>>>> parent of ef6c1c3 (Change test image to the new one; add jobs for JMH tests)
 # 
 #   clone_jamm:
 #     steps:
@@ -689,27 +651,6 @@ workflows:
 #             time mv ~/jamm /tmp
 #             cd /tmp/jamm
 #             mvn test
-#           no_output_timeout: <<parameters.no_output_timeout>>
-#       - store_test_results:
-#           path: /tmp/jamm/test/output/
-#       - store_artifacts:
-#           path: /tmp/jamm/test/logs
-#           destination: logs
-# 
-#   run_jmh_tests:
-#     parameters:
-#       no_output_timeout:
-#         type: string
-#         default: 30m
-#     steps:
-#       - run:
-#           name: Run JMH Tests
-#           command: |
-#             set -x
-#             export PATH=$JAVA_HOME/bin:$PATH
-#             time mv ~/jamm /tmp
-#             cd /tmp/jamm
-#             mvn jmh:benchmark
 #           no_output_timeout: <<parameters.no_output_timeout>>
 #       - store_test_results:
 #           path: /tmp/jamm/test/output/
