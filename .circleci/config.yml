@@ -39,8 +39,17 @@ jobs:
         name: Build Jamm
         command: |
           export PATH=$JAVA_HOME/bin:$PATH
+          pwd
+          ls -la
+          cd ..
+          ls -la
+          pwd
+          cd ..
+          ls -la
+
+          find / -type d -name ".m2" 2>/dev/null
           cd ~/jamm
-          cp toolchains.example.xml ~/.m2/toolchains.xml
+          cp toolchains.example.xml /.m2/toolchains.xml
           mvn compile
           # Exit, if we didn't build successfully
           if [ "${RETURN}" -ne "0" ]; then
@@ -733,8 +742,17 @@ workflows:
 #         name: Build Jamm
 #         command: |
 #           export PATH=$JAVA_HOME/bin:$PATH
+#           pwd
+#           ls -la
+#           cd ..
+#           ls -la
+#           pwd
+#           cd ..
+#           ls -la
+# 
+#           find / -type d -name \".m2\" 2>/dev/null
 #           cd ~/jamm
-#           cp toolchains.example.xml ~/.m2/toolchains.xml
+#           cp toolchains.example.xml /.m2/toolchains.xml
 #           mvn compile
 #           # Exit, if we didn't build successfully
 #           if [ \"${RETURN}\" -ne \"0\" ]; then
