@@ -80,8 +80,8 @@ RUN echo 'export ANT_HOME=/usr/share/ant' >> /home/jamm/.bashrc && \
 
 #add maven
 RUN export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends maven
+    sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends maven
 
 # below is leftover from the Cassandra test image used as a template, not convinced we will need this for jamm
 # mark "/tmp" as a volume so it will get mounted as an ext4 mount and not
