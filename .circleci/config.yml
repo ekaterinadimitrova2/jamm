@@ -40,7 +40,8 @@ jobs:
         command: |
           export PATH=$JAVA_HOME/bin:$PATH
           cd ~/jamm
-          cp toolchains.example.xml ~/.m2/toolchains.xml
+          ls -la
+          cp toolchains.example.xml /home/jamm/.m2/toolchains.xml
           mvn compile
           # Exit, if we didn't build successfully
           if [ "${RETURN}" -ne "0" ]; then
@@ -734,7 +735,8 @@ workflows:
 #         command: |
 #           export PATH=$JAVA_HOME/bin:$PATH
 #           cd ~/jamm
-#           cp toolchains.example.xml ~/.m2/toolchains.xml
+#           ls -la
+#           cp toolchains.example.xml /home/jamm/.m2/toolchains.xml
 #           mvn compile
 #           # Exit, if we didn't build successfully
 #           if [ \"${RETURN}\" -ne \"0\" ]; then
