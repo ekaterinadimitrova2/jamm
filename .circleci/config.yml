@@ -102,7 +102,7 @@ jobs:
           export PATH=$JAVA_HOME/bin:$PATH
           time mv ~/jamm /tmp
           cd /tmp/jamm
-          mvn test
+          EXECUTION_ID=surefire:test@test-jdk8-32 ./run-tests.sh
         no_output_timeout: 30m
     - store_test_results:
         path: /tmp/jamm/test/output/
@@ -115,8 +115,8 @@ jobs:
     - LANG: en_US.UTF-8
     - KEEP_TEST_DIR: true
     - DEFAULT_DIR: /home/jamm/jamm-test
-    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-i386
-    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-i386
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j8_64_bits_tests:
     docker:
     - image: edimitrova86/jamm-testing-ubuntu2204:latest
@@ -157,7 +157,7 @@ jobs:
           export PATH=$JAVA_HOME/bin:$PATH
           time mv ~/jamm /tmp
           cd /tmp/jamm
-          mvn test
+          EXECUTION_ID=surefire:test@test-default ./run-tests.sh
         no_output_timeout: 30m
     - store_test_results:
         path: /tmp/jamm/test/output/
@@ -212,7 +212,7 @@ jobs:
           export PATH=$JAVA_HOME/bin:$PATH
           time mv ~/jamm /tmp
           cd /tmp/jamm
-          mvn test
+          EXECUTION_ID=surefire:test@test-jdk11-32 ./run-tests.sh
         no_output_timeout: 30m
     - store_test_results:
         path: /tmp/jamm/test/output/
@@ -225,8 +225,8 @@ jobs:
     - LANG: en_US.UTF-8
     - KEEP_TEST_DIR: true
     - DEFAULT_DIR: /home/jamm/jamm-test
-    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-i386
-    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-i386
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j11_64_bits_tests:
     docker:
     - image: edimitrova86/jamm-testing-ubuntu2204:latest
@@ -267,7 +267,7 @@ jobs:
           export PATH=$JAVA_HOME/bin:$PATH
           time mv ~/jamm /tmp
           cd /tmp/jamm
-          mvn test
+          EXECUTION_ID=surefire:test@test-jdk11-64 ./run-tests.sh
         no_output_timeout: 30m
     - store_test_results:
         path: /tmp/jamm/test/output/
@@ -280,8 +280,8 @@ jobs:
     - LANG: en_US.UTF-8
     - KEEP_TEST_DIR: true
     - DEFAULT_DIR: /home/jamm/jamm-test
-    - JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-    - JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j17_32_bits_tests:
     docker:
     - image: edimitrova86/jamm-testing-ubuntu2204:latest
@@ -322,7 +322,7 @@ jobs:
           export PATH=$JAVA_HOME/bin:$PATH
           time mv ~/jamm /tmp
           cd /tmp/jamm
-          mvn test
+          EXECUTION_ID=surefire:test@test-jdk17-32 ./run-tests.sh
         no_output_timeout: 30m
     - store_test_results:
         path: /tmp/jamm/test/output/
@@ -335,8 +335,8 @@ jobs:
     - LANG: en_US.UTF-8
     - KEEP_TEST_DIR: true
     - DEFAULT_DIR: /home/jamm/jamm-test
-    - JAVA_HOME: /usr/lib/jvm/java-17-openjdk-i386
-    - JDK_HOME: /usr/lib/jvm/java-17-openjdk-i386
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   j17_64_bits_tests:
     docker:
     - image: edimitrova86/jamm-testing-ubuntu2204:latest
@@ -377,7 +377,7 @@ jobs:
           export PATH=$JAVA_HOME/bin:$PATH
           time mv ~/jamm /tmp
           cd /tmp/jamm
-          mvn test
+          EXECUTION_ID=surefire:test@test-jdk17-64 ./run-tests.sh
         no_output_timeout: 30m
     - store_test_results:
         path: /tmp/jamm/test/output/
@@ -390,8 +390,8 @@ jobs:
     - LANG: en_US.UTF-8
     - KEEP_TEST_DIR: true
     - DEFAULT_DIR: /home/jamm/jamm-test
-    - JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
-    - JDK_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+    - JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
+    - JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
 workflows:
   version: 2
   jamm_tests:
@@ -454,37 +454,6 @@ workflows:
 #     exec_resource_class: medium
 #   parallelism: 1
 # 
-# 
-# j8_32bits_small_executor: &j8_32bits_small_executor
-#   executor:
-#     name: java8-32bits-executor
-#     exec_resource_class: medium
-#   parallelism: 1
-# 
-# j11_32bits_small_executor: &j11_32bits_small_executor
-#   executor:
-#     name: java11-32bits-executor
-#     exec_resource_class: medium
-#   parallelism: 1
-# 
-# j11_64bits_small_executor: &j11_64bits_small_executor
-#   executor:
-#     name: java11-64bits-executor
-#     exec_resource_class: medium
-#   parallelism: 1
-# 
-# j17_32bits_small_executor: &j17_32bits_small_executor
-#   executor:
-#     name: java17-32bits-executor
-#     exec_resource_class: medium
-#   parallelism: 1
-# 
-# j17_64bits_small_executor: &j17_64bits_small_executor
-#   executor:
-#     name: java17-64bits-executor
-#     exec_resource_class: medium
-#   parallelism: 1
-# 
 # test_jobs: &test_jobs
 #   jobs:
 #     - start_j8_build:
@@ -532,7 +501,6 @@ workflows:
 #           - start_j17_64_bits_tests
 #           - j8_build
 # 
-# 
 # workflows:
 #   version: 2
 #   jamm_tests: *test_jobs
@@ -553,82 +521,6 @@ workflows:
 #       JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
 #       JDK_HOME: /usr/lib/jvm/java-8-openjdk-amd64
 # 
-#   java8-32bits-executor:
-#     parameters:
-#       exec_resource_class:
-#         type: string
-#         default: medium
-#     docker:
-#       - image: edimitrova86/jamm-testing-ubuntu2204:latest
-#     resource_class: << parameters.exec_resource_class >>
-#     working_directory: ~/
-#     shell: /bin/bash -eo pipefail -l
-#     environment:
-#       <<: *default_env_vars
-#       JAVA_HOME: /usr/lib/jvm/java-8-openjdk-i386
-#       JDK_HOME: /usr/lib/jvm/java-8-openjdk-i386
-# 
-#   java11-64bits-executor:
-#     parameters:
-#       exec_resource_class:
-#         type: string
-#         default: medium
-#     docker:
-#       - image: edimitrova86/jamm-testing-ubuntu2204:latest
-#     resource_class: << parameters.exec_resource_class >>
-#     working_directory: ~/
-#     shell: /bin/bash -eo pipefail -l
-#     environment:
-#       <<: *default_env_vars
-#       JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-#       JDK_HOME: /usr/lib/jvm/java-11-openjdk-amd64
-# 
-#   java11-32bits-executor:
-#     parameters:
-#       exec_resource_class:
-#         type: string
-#         default: medium
-#     docker:
-#       - image: edimitrova86/jamm-testing-ubuntu2204:latest
-#     resource_class: << parameters.exec_resource_class >>
-#     working_directory: ~/
-#     shell: /bin/bash -eo pipefail -l
-#     environment:
-#       <<: *default_env_vars
-#       JAVA_HOME: /usr/lib/jvm/java-11-openjdk-i386
-#       JDK_HOME: /usr/lib/jvm/java-11-openjdk-i386
-# 
-#   java17-64bits-executor:
-#     parameters:
-#       exec_resource_class:
-#         type: string
-#         default: medium
-#     docker:
-#       - image: edimitrova86/jamm-testing-ubuntu2204:latest
-#     resource_class: << parameters.exec_resource_class >>
-#     working_directory: ~/
-#     shell: /bin/bash -eo pipefail -l
-#     environment:
-#       <<: *default_env_vars
-#       JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
-#       JDK_HOME: /usr/lib/jvm/java-17-openjdk-amd64
-# 
-#   java17-32bits-executor:
-#     parameters:
-#       exec_resource_class:
-#         type: string
-#         default: medium
-#     docker:
-#       - image: edimitrova86/jamm-testing-ubuntu2204:latest
-#     resource_class: << parameters.exec_resource_class >>
-#     working_directory: ~/
-#     shell: /bin/bash -eo pipefail -l
-#     environment:
-#       <<: *default_env_vars
-#       JAVA_HOME: /usr/lib/jvm/java-17-openjdk-i386
-#       JDK_HOME: /usr/lib/jvm/java-17-openjdk-i386
-# 
-# 
 # build_common: &build_common
 #   parallelism: 1 # This job doesn't benefit from parallelism
 #   steps:
@@ -647,12 +539,13 @@ workflows:
 #     <<: *build_common
 # 
 #   j8_32_bits_tests:
-#     <<: *j8_32bits_small_executor
+#     <<: *j8_64bits_small_executor
 #     steps:
 #       - attach_workspace:
 #           at: /home/jamm
 #       - log_environment
-#       - run_tests
+#       - run_tests:
+#           execution_id: surefire:test@test-jdk8-32
 # 
 #   j8_64_bits_tests:
 #     <<: *j8_64bits_small_executor
@@ -660,39 +553,44 @@ workflows:
 #       - attach_workspace:
 #           at: /home/jamm
 #       - log_environment
-#       - run_tests
+#       - run_tests:
+#           execution_id: surefire:test@test-default
 # 
 #   j11_64_bits_tests:
-#     <<: *j11_64bits_small_executor
+#     <<: *j8_64bits_small_executor
 #     steps:
 #       - attach_workspace:
 #           at: /home/jamm
 #       - log_environment
-#       - run_tests
+#       - run_tests:
+#           execution_id: surefire:test@test-jdk11-64
 # 
 #   j11_32_bits_tests:
-#     <<: *j11_32bits_small_executor
+#     <<: *j8_64bits_small_executor
 #     steps:
 #       - attach_workspace:
 #           at: /home/jamm
 #       - log_environment
-#       - run_tests
+#       - run_tests:
+#           execution_id: surefire:test@test-jdk11-32
 # 
 #   j17_64_bits_tests:
-#     <<: *j17_64bits_small_executor
+#     <<: *j8_64bits_small_executor
 #     steps:
 #       - attach_workspace:
 #           at: /home/jamm
 #       - log_environment
-#       - run_tests
+#       - run_tests:
+#           execution_id: surefire:test@test-jdk17-64
 # 
 #   j17_32_bits_tests:
-#     <<: *j17_32bits_small_executor
+#     <<: *j8_64bits_small_executor
 #     steps:
 #       - attach_workspace:
 #           at: /home/jamm
 #       - log_environment
-#       - run_tests
+#       - run_tests:
+#           execution_id: surefire:test@test-jdk17-32
 # 
 # commands:
 #   log_environment:
@@ -747,6 +645,9 @@ workflows:
 # 
 #   run_tests:
 #     parameters:
+#       execution_id:
+#         type: string
+#         default: \"\"
 #       no_output_timeout:
 #         type: string
 #         default: 30m
@@ -758,7 +659,7 @@ workflows:
 #             export PATH=$JAVA_HOME/bin:$PATH
 #             time mv ~/jamm /tmp
 #             cd /tmp/jamm
-#             mvn test
+#             EXECUTION_ID=<<parameters.execution_id>> ./run-tests.sh
 #           no_output_timeout: <<parameters.no_output_timeout>>
 #       - store_test_results:
 #           path: /tmp/jamm/test/output/
