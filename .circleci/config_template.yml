@@ -195,11 +195,7 @@ commands:
           cd ~/jamm
           cp toolchains.example.xml ~/.m2/toolchains.xml
           mvn compile
-          # Exit, if we didn't build successfully
-          if [ "${RETURN}" -ne "0" ]; then
-              echo "Build failed with exit code: ${RETURN}"
-              exit ${RETURN}
-          fi
+          mvn compiler:testCompile
         no_output_timeout: 15m
 
   run_tests:
