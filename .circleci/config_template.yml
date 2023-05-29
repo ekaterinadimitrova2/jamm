@@ -196,6 +196,7 @@ commands:
           cp toolchains.example.xml ~/.m2/toolchains.xml
           mvn compile
           mvn compiler:testCompile
+          mvn jar:test-jar
         no_output_timeout: 15m
 
   run_tests:

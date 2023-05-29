@@ -44,6 +44,7 @@ jobs:
           cp toolchains.example.xml ~/.m2/toolchains.xml
           mvn compile
           mvn compiler:testCompile
+          mvn jar:test-jar
         no_output_timeout: 15m
     - persist_to_workspace:
         root: /home/jamm
@@ -633,6 +634,7 @@ workflows:
 #           cp toolchains.example.xml ~/.m2/toolchains.xml
 #           mvn compile
 #           mvn compiler:testCompile
+#           mvn jar:test-jar
 #         no_output_timeout: 15m
 # 
 #   run_tests:
