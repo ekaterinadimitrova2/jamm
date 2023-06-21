@@ -29,7 +29,7 @@ import org.openjdk.jmh.infra.Blackhole;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class BenchmarkStategies
 {
-    @Param({"ALWAYS_INSTRUMENTATION", "ALWAYS_SPEC", "ALWAYS_UNSAFE"})
+    @Param({"INSTRUMENTATION", "INSTRUMENTATION_AND_SPEC", "SPEC", "UNSAFE"})
     private String guess;
 
     private MemoryMeter meter;

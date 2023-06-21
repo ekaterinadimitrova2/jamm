@@ -1,6 +1,7 @@
 package org.github.jamm;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Queue;
 
 import org.github.jamm.MemoryMeter.Guess;
 import org.github.jamm.strategies.MeasurementCache;
@@ -16,7 +17,7 @@ public class MeasurementCacheTest {
 
     @Test
     public void testCacheEverything() {
-        MemoryMeter reference = MemoryMeter.builder().withGuessing(Guess.ALWAYS_INSTRUMENTATION).build();
+        MemoryMeter reference = MemoryMeter.builder().withGuessing(Guess.INSTRUMENTATION).build();
         Tracker tracker = new Tracker();
         MemoryMeter meter = memoryMeter(tracker, CachingStrategies.EVERYTHING);
 
@@ -55,7 +56,7 @@ public class MeasurementCacheTest {
 
     @Test
     public void testCacheMostCommonJavaClasses() {
-        MemoryMeter reference = MemoryMeter.builder().withGuessing(Guess.ALWAYS_INSTRUMENTATION).build();
+        MemoryMeter reference = MemoryMeter.builder().withGuessing(Guess.INSTRUMENTATION).build();
         Tracker tracker = new Tracker();
         MemoryMeter meter = memoryMeter(tracker, CachingStrategies.MOST_COMMON_JAVA_CLASSES);
 
@@ -96,7 +97,7 @@ public class MeasurementCacheTest {
 
     @Test
     public void testCacheMostCommonJavaClassesAndMeasurable() {
-        MemoryMeter reference = MemoryMeter.builder().withGuessing(Guess.ALWAYS_INSTRUMENTATION).build();
+        MemoryMeter reference = MemoryMeter.builder().withGuessing(Guess.INSTRUMENTATION).build();
         Tracker tracker = new Tracker();
         MemoryMeter meter = memoryMeter(tracker, CachingStrategies.MOST_COMMON_JAVA_CLASSES_AND_MEASURABLE);
 
@@ -163,7 +164,9 @@ public class MeasurementCacheTest {
 
     public MemoryMeter memoryMeter(Tracker tracker, CachingStrategy cachingStrategy) {
 
-        MemoryMeterStrategy original = MemoryMeterStrategies.getInstance().getStrategy(Guess.ALWAYS_INSTRUMENTATION);
+        Queue<Guess> guesses = new LinkedList<>();
+        guesses.add(Guess.INSTRUMENTATION);
+        MemoryMeterStrategy original = MemoryMeterStrategies.getInstance().getStrategy(guesses);
         MemoryMeterStrategy listener = new CallTracker(original, tracker);
         MemoryMeterStrategy measurementCache = new MeasurementCache(listener, cachingStrategy);
 
