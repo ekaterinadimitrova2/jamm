@@ -3,16 +3,41 @@ package org.github.jamm;
 /**
  * Represents a strategy to measure the shallow memory used by a Java object. 
  */
-@FunctionalInterface
 public interface MemoryMeterStrategy
 {
     /**
      * Measures the shallow memory used by the specified object.
      *
      * @param object the object to measure
+     * @param type the object type
      * @return the shallow memory usage of the specified object
      */
-    long measure(Object object);
+    default long measure(Object object) {
+
+        Class<?> type = object.getClass();
+        if (type.isArray())
+            return measureArray(object, type);
+
+        return measureInstance(object, type);
+    }
+
+    /**
+     * Measures the shallow memory used by the specified object.
+     *
+     * @param object the object to measure
+     * @param type the object type
+     * @return the shallow memory usage of the specified object
+     */
+    long measureInstance(Object object, Class<?> type);
+
+    /**
+     * Measures the shallow memory used by the specified array.
+     *
+     * @param object the array to measure
+     * @param type the array type
+     * @return the shallow memory usage of the specified array
+     */
+    long measureArray(Object array, Class<?> type);
 
     /**
      * Measures the shallow memory used by the specified array.
@@ -22,7 +47,7 @@ public interface MemoryMeterStrategy
      */
     default long measureArray(Object[] array)
     {
-        return measure(array);
+        return measureArray(array, array.getClass());
     }
 
     /**
@@ -33,7 +58,7 @@ public interface MemoryMeterStrategy
      */
     default long measureArray(byte[] array)
     {
-        return measure(array);
+        return measureArray(array, array.getClass());
     }
 
     /**
@@ -44,7 +69,7 @@ public interface MemoryMeterStrategy
      */
     default long measureArray(boolean[] array)
     {
-        return measure(array);
+        return measureArray(array, array.getClass());
     }
 
     /**
@@ -55,9 +80,9 @@ public interface MemoryMeterStrategy
      */
     default long measureArray(short[] array)
     {
-        return measure(array);
+        return measureArray(array, array.getClass());
     }
-    
+
     /**
      * Measures the shallow memory used by the specified char array.
      *
@@ -66,9 +91,9 @@ public interface MemoryMeterStrategy
      */
     default long measureArray(char[] array)
     {
-        return measure(array);
+        return measureArray(array, array.getClass());
     }
-    
+
     /**
      * Measures the shallow memory used by the specified int array.
      *
@@ -77,9 +102,9 @@ public interface MemoryMeterStrategy
      */
     default long measureArray(int[] array)
     {
-        return measure(array);
+        return measureArray(array, array.getClass());
     }
-    
+
     /**
      * Measures the shallow memory used by the specified float array.
      *
@@ -88,7 +113,7 @@ public interface MemoryMeterStrategy
      */
     default long measureArray(float[] array)
     {
-        return measure(array);
+        return measureArray(array, array.getClass());
     }
 
     /**
@@ -99,7 +124,7 @@ public interface MemoryMeterStrategy
      */
     default long measureArray(long[] array)
     {
-        return measure(array);
+        return measureArray(array, array.getClass());
     }
 
     /**
@@ -110,17 +135,6 @@ public interface MemoryMeterStrategy
      */
     default long measureArray(double[] array)
     {
-        return measure(array);
-    }
-
-    /**
-     * Measures the shallow memory used by the specified {@code String}.
-     *
-     * @param s the {@code String} to measure
-     * @return the shallow memory used by the specified {@code String}.
-     */
-    default long measureString(String s)
-    {
-        return measure(s);
+        return measureArray(array, array.getClass());
     }
 }

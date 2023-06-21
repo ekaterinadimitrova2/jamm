@@ -17,7 +17,12 @@ final class InstrumentationStrategy implements MemoryMeterStrategy {
     }
 
     @Override
-    public long measure(Object object) {
+    public long measureInstance(Object object, Class<?> type) {
         return instrumentation.getObjectSize(object);
+    }
+
+    @Override
+    public long measureArray(Object array, Class<?> type) {
+        return instrumentation.getObjectSize(array);
     }
 }

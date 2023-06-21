@@ -258,6 +258,16 @@ if the data of a read-only direct buffer is shared (capacity > remaining).
 
 Moreover as specified in the `Supported Java versions` section the `ContendedPaddingWidth` and `EnableContended` arguments logics are broken in Java 17. Therefore the use of the `ContendedPaddingWidth` argument or of `-XX:-EnableContended` might caused the `Unsafe` and `Specification` strategies to return wrong results when the classes are using `@Contended`.
 
+## Caching
+
+`MemoryMeter` can be configured to cache some measurements in order to increase the measurement performance. In order to enable caching a `CachingStrategy` implementation should be provided through the `MemoryMeter.Builder.withCaching` method.
+
+```
+MemoryMeter meter = MemoryMetter.builder().withCaching(CachingStrategies.MOST_COMMON_JAVA_CLASSES_AND_MEASURABLE).build();
+```
+A `CachingStrategy` allows to specify which class measurements should be cached as well as which measurements should be preloaded when the `MemoryMeter` is created.
+Some pre-existing strategies can be found in `org.github.jamm.strategies.CachingStrategies`
+
 ## Debugging
 
 In order to see the object tree visited when calling `MemoryMeter.measureDeep` and ensuring that it matches your

@@ -42,7 +42,17 @@ public class BenchmarkObjectGraphTraversal
     @Setup(Level.Iteration)
     public void setup() throws Exception
     {
-        MemoryMeterStrategy strategy = o -> 1;
+        MemoryMeterStrategy strategy = new MemoryMeterStrategy() {
+
+            @Override
+            public long measureInstance(Object object, Class<?> type) {
+                return 1;
+            }
+            @Override
+            public long measureArray(Object array, Class<?> type) {
+                return 1;
+            }
+        };
         FieldFilter fieldFilter = Filters.getFieldFilters(false, false, false);
         FieldAndClassFilter classFilter = Filters.getClassFilters(false);
         this.meter = new MemoryMeter(strategy, classFilter, fieldFilter, false, NoopMemoryMeterListener.FACTORY);

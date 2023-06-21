@@ -31,12 +31,6 @@ public abstract class MemoryLayoutBasedStrategy implements MemoryMeterStrategy
     }
 
     @Override
-    public final long measure(Object object) {
-        Class<?> type = object.getClass();
-         return type.isArray() ? measureArray(object, type) : measureInstance(type);
-    }
-
-    @Override
     public long measureArray(Object[] array) {
         return computeArraySize(array.length, memoryLayout.getReferenceSize());
     }
@@ -81,19 +75,6 @@ public abstract class MemoryLayoutBasedStrategy implements MemoryMeterStrategy
         return computeArraySize(array.length, Double.BYTES);
     }
 
-    @Override
-    public long measureString(String s) {
-        return measure(s);
-    }
-
-    /**
-     * Measures the shallow memory used by objects of the specified class.
-     *
-     * @param type the object type
-     * @return the shallow memory used by the object
-     */
-    protected abstract long measureInstance(Class<?> type);
-
     /**
      * Measure the shallow memory used by the specified array.
      *
@@ -101,7 +82,7 @@ public abstract class MemoryLayoutBasedStrategy implements MemoryMeterStrategy
      * @param type the array type
      * @return the shallow memory used by the specified array
      */
-    private final long measureArray(Object instance, Class<?> type) {
+    public final long measureArray(Object instance, Class<?> type) {
         int length = Array.getLength(instance);
         int elementSize = measureField(type.getComponentType());
         return computeArraySize(length, elementSize);

@@ -4,6 +4,7 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
+import org.github.jamm.strategies.MeasurementCache;
 import org.github.jamm.strategies.MemoryMeterStrategies;
 
 public final class MemoryMeter {
@@ -11,7 +12,7 @@ public final class MemoryMeter {
     public static void premain(String options, Instrumentation inst) {
         MemoryMeterStrategies.instrumentation = inst;
     }
-    
+
     public static void agentmain(String options, Instrumentation inst) {
         MemoryMeterStrategies.instrumentation = inst;
     }
@@ -72,11 +73,23 @@ public final class MemoryMeter {
 
     private MemoryMeter(Builder builder) {
 
-        this(MemoryMeterStrategies.getInstance().getStrategy(builder.guess),
+        this(addCaching(MemoryMeterStrategies.getInstance().getStrategy(builder.guess), builder.cachingStrategy),
              Filters.getClassFilters(builder.ignoreKnownSingletons),
              Filters.getFieldFilters(builder.ignoreKnownSingletons, builder.ignoreOuterClassReference, builder.ignoreNonStrongReferences),
              builder.omitSharedBufferOverhead,
              builder.listenerFactory);
+    }
+
+    /**
+     * Adds caching around the specified {@code MemoryMeterStrategy} if a caching strategy has been configured.
+     *
+     * @param meterStrategy the {@code MemoryMeterStrategy} used to perform the measurements
+     * @param cachingStrategy the caching strategy or {@code null} if not strategy has been specified. 
+     * @return the original strategy if the caching strategy was {@code null} or {@code MeasurementCache}
+     */
+    private static MemoryMeterStrategy addCaching(MemoryMeterStrategy meterStrategy, CachingStrategy cachingStrategy) {
+
+        return cachingStrategy == null ? meterStrategy : new MeasurementCache(meterStrategy, cachingStrategy);
     }
 
     /**
@@ -438,6 +451,7 @@ public final class MemoryMeter {
         private boolean ignoreKnownSingletons = true;
         private boolean ignoreNonStrongReferences = true;
         private boolean omitSharedBufferOverhead;
+        private CachingStrategy cachingStrategy;
         private MemoryMeterListener.Factory listenerFactory = NoopMemoryMeterListener.FACTORY;
 
         private Builder() {
@@ -453,6 +467,16 @@ public final class MemoryMeter {
          */
         public Builder withGuessing(Guess guess) {
             this.guess = guess;
+            return this;
+        }
+
+        /**
+         * Specify how the measurements should be cached for improving measurement performance.
+         *
+         * @param cachingStrategy the strategy used to determine which measurements should be cached.
+         */
+        public Builder withCachingStrategy(CachingStrategy cachingStrategy) {
+            this.cachingStrategy = cachingStrategy;
             return this;
         }
 
