@@ -10,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import org.github.jamm.testedclasses.PublicClassWithPackageProtectedClassFields;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
@@ -279,5 +281,14 @@ public class MemoryMeterTest
         {
             return s.compareTo(field) > 0;
         }
+    }
+
+    @Test
+    public void testMeasureDeepWithPublicFieldInPackagePrivate() {
+
+        MemoryMeter meter = MemoryMeter.builder().withGuessing(guess).build();
+        PublicClassWithPackageProtectedClassFields object = new PublicClassWithPackageProtectedClassFields("publicField", "packageProtected", "protected", "private");
+        long expected = object.measure(meter);
+        assertEquals(expected, meter.measureDeep(object));
     }
 }
