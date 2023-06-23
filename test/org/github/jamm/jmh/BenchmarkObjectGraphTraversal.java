@@ -9,7 +9,7 @@ import org.github.jamm.Measurable;
 import org.github.jamm.MeasurementStack;
 import org.github.jamm.MemoryMeter;
 import org.github.jamm.MemoryMeterStrategy;
-import org.github.jamm.NoopMemoryMeterListener;
+import org.github.jamm.listeners.NoopMemoryMeterListener;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -17,6 +17,7 @@ import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
@@ -26,13 +27,13 @@ import org.openjdk.jmh.infra.Blackhole;
 
 @Threads(3)
 @Fork(value = 1, jvmArgsPrepend = {
-        "-javaagent:target/jamm-0.4.0-SNAPSHOT.jar"
+        "-javaagent:target/jamm-0.4.0-SNAPSHOT.jar",
 })
 @Warmup(iterations=4, time=5, timeUnit=TimeUnit.SECONDS)
-@Measurement(iterations=5, time=5, timeUnit=TimeUnit.SECONDS)
-@BenchmarkMode(Mode.Throughput)
+@Measurement(iterations=5, time=30, timeUnit=TimeUnit.SECONDS)
+@BenchmarkMode(Mode.AverageTime)
 @State(Scope.Thread)
-@OutputTimeUnit(TimeUnit.MILLISECONDS)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class BenchmarkObjectGraphTraversal
 {
     private MemoryMeter meter;
@@ -41,11 +42,14 @@ public class BenchmarkObjectGraphTraversal
      * The object being measured through reflection
      */
     private static Object OBJ;
-    
+
     /**
      * The object being measured through the Measurable interface
      */
     private static Object MEASURABLE;
+
+    @Param({"false"})
+    private boolean withFieldCaching;
 
     static {
 
@@ -72,7 +76,7 @@ public class BenchmarkObjectGraphTraversal
         FieldFilter fieldFilter = Filters.getFieldFilters(false, false, false);
         FieldAndClassFilter classFilter = Filters.getClassFilters(false);
 
-        this.meter = new MemoryMeter(strategy, classFilter, fieldFilter, false, NoopMemoryMeterListener.FACTORY);
+        this.meter = new MemoryMeter(strategy, classFilter, fieldFilter, NoopMemoryMeterListener.FACTORY);
     }
 
     @Benchmark
@@ -96,7 +100,7 @@ public class BenchmarkObjectGraphTraversal
         {
         }
     }
-    
+
     @SuppressWarnings("unused")
     public static class ClassWithOnePrimitiveFields {
 
