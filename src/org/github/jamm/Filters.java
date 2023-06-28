@@ -89,30 +89,7 @@ public final class Filters
 
         @Override
         public boolean ignore(Class<?> cls) {
-            return isUnmeteredAnnotationPresent(cls);
-        }
-
-        /**
-         * Checks if the specified class or one of its parents is annotated with {@code Unmetered}
-         *
-         * @param cls the class to check 
-         * @return {@code true} if the specified class or one of its parents is annotated with {@code Unmetered}, {@code false} otherwise.
-         */
-        private boolean isUnmeteredAnnotationPresent(Class<?> cls) {
-
-            if (cls == null)
-                return false;
-
-            if (cls.isAnnotationPresent(Unmetered.class))
-                return true;
-
-            Class<?>[] interfaces = cls.getInterfaces();
-            for (int i = 0; i < interfaces.length; i++) {
-                if (isUnmeteredAnnotationPresent(cls.getInterfaces()[i]))
-                    return true;
-            }
-
-            return isUnmeteredAnnotationPresent(cls.getSuperclass());
+            return cls != null && cls.isAnnotationPresent(Unmetered.class);
         }
     };
 
