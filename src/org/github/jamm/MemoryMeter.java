@@ -25,7 +25,7 @@ public final class MemoryMeter {
     public static void premain(String options, Instrumentation inst) {
         MemoryMeterStrategies.instrumentation = inst;
     }
-    
+
     public static void agentmain(String options, Instrumentation inst) {
         MemoryMeterStrategies.instrumentation = inst;
     }
@@ -185,6 +185,11 @@ public final class MemoryMeter {
     protected final FieldFilter fieldFilter;
 
     /**
+     * Turn ON or OFF the String  measurement optimization
+     */
+    private final boolean optimizeStringMeasurement;
+
+    /**
      * Utility used to optimize the deep measurement of String objects.
      */
     private final StringMeter STRING_METER = StringMeter.newInstance();
@@ -199,7 +204,8 @@ public final class MemoryMeter {
         this(MemoryMeterStrategies.getInstance().getStrategy(builder.guesses),
              Filters.getClassFilters(builder.ignoreKnownSingletons),
              Filters.getFieldFilters(builder.ignoreKnownSingletons, builder.ignoreOuterClassReference, builder.ignoreNonStrongReferences),
-             builder.listenerFactory);
+             builder.listenerFactory,
+             builder.optimizeStringMeasurement);
     }
 
     /**
@@ -218,10 +224,20 @@ public final class MemoryMeter {
                        FieldFilter fieldFilter,
                        MemoryMeterListener.Factory listenerFactory) {
 
+        this(strategy, classFilter, fieldFilter, listenerFactory, true);
+    }
+
+    private MemoryMeter(MemoryMeterStrategy strategy,
+                        FieldAndClassFilter classFilter,
+                        FieldFilter fieldFilter,
+                        MemoryMeterListener.Factory listenerFactory,
+                        boolean optimizeStringMeasurement) {
+
         this.strategy = strategy;
         this.classFilter = classFilter;
         this.fieldFilter = fieldFilter;
         this.listenerFactory = listenerFactory;
+        this.optimizeStringMeasurement = optimizeStringMeasurement;
     }
 
     public static Builder builder() {
@@ -233,7 +249,7 @@ public final class MemoryMeter {
      * @return information about the memory layout used by the JVM
      */
     public static MemoryLayoutSpecification getMemoryLayoutSpecification() {
-        return MemoryMeterStrategies.getInstance().getMemoryLayoutSpecification();
+        return MemoryMeterStrategy.MEMORY_LAYOUT;
     }
 
     /**
@@ -404,10 +420,14 @@ public final class MemoryMeter {
      */
     public long measureStringDeep(String s) {
 
-        if (s == null)
-            return 0L;
+        if (optimizeStringMeasurement) {
 
-        return STRING_METER.measure(strategy, s);
+            if (s == null)
+                return 0L;
+
+            return STRING_METER.measure(strategy, s);
+        }
+        return measureDeep(s);
     }
 
     /**
@@ -452,8 +472,15 @@ public final class MemoryMeter {
             Object current = stack.pop();
 
             // Deal with optimizations first.
-            if (current instanceof String) {
+            if (optimizeStringMeasurement && current instanceof String) {
                 total += measureStringWithChild((String) current, listener);
+                continue;
+            }
+ 
+            if (current instanceof Measurable) {
+                Measurable measurable = (Measurable) current;
+                total += measureMeasurable(measurable, listener);
+                measurable.addChildrenTo(stack);
                 continue;
             }
 
@@ -467,20 +494,16 @@ public final class MemoryMeter {
                 if (!cls.getComponentType().isPrimitive())
                     addArrayElements((Object[]) current, stack);
              } else {
-                 if (current instanceof Measurable) {
-                     ((Measurable) current).addChildrenTo(stack);
-                } else {
-                    if (current instanceof ByteBuffer && bbMode.isSlab((ByteBuffer) current)) {
-                        ByteBuffer buffer = (ByteBuffer) current;
-                        if (!buffer.isDirect()) { // If direct we should simply not measure the fields
-                            long remaining = buffer.remaining();
-                            listener.byteBufferRemainingMeasured(buffer, remaining);
-                            total += remaining;
-                        }
-                        continue;
+                if (current instanceof ByteBuffer && bbMode.isSlab((ByteBuffer) current)) {
+                    ByteBuffer buffer = (ByteBuffer) current;
+                    if (!buffer.isDirect()) { // If direct we should simply not measure the fields
+                        long remaining = buffer.remaining();
+                        listener.byteBufferRemainingMeasured(buffer, remaining);
+                        total += remaining;
                     }
-                    addFields(current, cls, stack);
+                    continue;
                 }
+                addFields(current, cls, stack);
             }
         } 
         listener.done(total);
@@ -490,6 +513,12 @@ public final class MemoryMeter {
     private long measureStringWithChild(String s, MemoryMeterListener listener) {
         long size = STRING_METER.measure(strategy, s);
         listener.objectMeasured(s, size);
+        return size;
+    }
+
+    private long measureMeasurable(Measurable measurable, MemoryMeterListener listener) {
+        long size = measurable.shallowSize(strategy);
+        listener.objectMeasured(measurable, size);
         return size;
     }
 
@@ -566,6 +595,7 @@ public final class MemoryMeter {
         private boolean ignoreKnownSingletons = true;
         private boolean ignoreNonStrongReferences = true;
         private MemoryMeterListener.Factory listenerFactory = NoopMemoryMeterListener.FACTORY;
+        private boolean optimizeStringMeasurement = true;
 
         private Builder() {
 
@@ -647,6 +677,15 @@ public final class MemoryMeter {
                 throw new IllegalArgumentException(String.format("the depth must be greater than zero (was %s).", depth));
 
             listenerFactory = new TreePrinter.Factory(depth);
+            return this;
+        }
+
+        /**
+         * Disable String optimization (for testing only).
+         * @return this builder
+         */
+        Builder doNotOptimizeStringMeasurements() {
+            optimizeStringMeasurement = false;
             return this;
         }
     }

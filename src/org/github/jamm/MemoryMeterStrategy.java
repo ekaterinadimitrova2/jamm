@@ -7,6 +7,11 @@ package org.github.jamm;
 public interface MemoryMeterStrategy {
 
     /**
+     * The memory layout detected by JAMM.
+     */
+    public static final MemoryLayoutSpecification MEMORY_LAYOUT = MemoryLayoutSpecification.getEffectiveMemoryLayoutSpecification();
+
+    /**
      * Measures the shallow memory used by the specified object.
      *
      * @param object the object to measure

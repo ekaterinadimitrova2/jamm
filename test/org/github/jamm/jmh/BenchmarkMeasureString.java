@@ -3,8 +3,8 @@ package org.github.jamm.jmh;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import org.github.jamm.MemoryLayoutSpecification;
 import org.github.jamm.MemoryMeter;
+import org.github.jamm.MemoryMeterStrategy;
 import org.github.jamm.utils.ArrayMeasurementUtils;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -24,6 +24,7 @@ import org.openjdk.jmh.infra.Blackhole;
 @Threads(3)
 @Fork(value = 1, jvmArgsPrepend = {
         "-javaagent:target/jamm-0.4.0-SNAPSHOT.jar",
+//        "--add-opens=java.base/java.lang=ALL-UNNAMED"
 })
 @Warmup(iterations=4, time=5, timeUnit=TimeUnit.SECONDS)
 @Measurement(iterations=5, time=5, timeUnit=TimeUnit.SECONDS)
@@ -40,8 +41,6 @@ public class BenchmarkMeasureString
     private static String[] strings;
 
     private long emptySize;
-
-    private MemoryLayoutSpecification spec;
 
     static
     {
@@ -68,7 +67,6 @@ public class BenchmarkMeasureString
         MemoryMeter.Guess guess = MemoryMeter.Guess.valueOf(this.guess);
         this.meter = MemoryMeter.builder().withGuessing(guess).build();
         emptySize = this.meter.measure("");
-        spec = MemoryMeter.getMemoryLayoutSpecification();
     }
 
     @Benchmark
@@ -76,17 +74,17 @@ public class BenchmarkMeasureString
         for (String s : strings)
             bh.consume(meter.measureStringDeep(s));
     }
-
+//
 //    @Benchmark
 //    public void measureReference(Blackhole bh) {
 //        for (String s : strings) {
-//            bh.consume(emptySize + ArrayMeasurementUtils.computeArraySize(spec.getArrayHeaderSize(), s.length(), Character.BYTES, spec.getObjectAlignment()));
+//            bh.consume(emptySize + ArrayMeasurementUtils.computeArraySize(MemoryMeterStrategy.MEMORY_LAYOUT.getArrayHeaderSize(), s.length(), Character.BYTES, MemoryMeterStrategy.MEMORY_LAYOUT.getObjectAlignment()));
 //        }
 //    }
 
-    @Benchmark
-    public void measureDeep(Blackhole bh) {
-        for (String s : strings)
-            bh.consume(meter.measureDeep(s));
-    }
+//    @Benchmark
+//    public void measureDeep(Blackhole bh) {
+//        for (String s : strings)
+//            bh.consume(meter.measureDeep(s));
+//    }
 }

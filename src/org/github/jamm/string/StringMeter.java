@@ -60,15 +60,17 @@ public abstract class StringMeter {
             Optional<MethodHandle> mayBeTrySetAccessible = MethodHandleUtils.mayBeMethodHandle(Field.class, "trySetAccessible"); // Added in Java 9
             if (mayBeTrySetAccessible.isPresent()) {
 
-                if ((boolean) mayBeTrySetAccessible.get().invoke(field)) {
-                    return new PlainReflectionStringMeter(methodHandle(field));
-                }
-                // We do not have access to the field through reflection we need to use Unsafe
+                // Base on the JMH benchmarks, Unsafe is faster than using a MethodHandle so we try to use Unsafe first and default to reflection if it is unavailable.  
                 Unsafe unsafe = VM.getUnsafe();
 
-                if (unsafe == null)
+                if (unsafe == null) {
+
+                    if ((boolean) mayBeTrySetAccessible.get().invoke(field)) {
+                        return new PlainReflectionStringMeter(methodHandle(field));
+                    }
                     throw new CannotAccessFieldException("The value of the 'value' field from java.lang.String"
                                                          + " cannot be retrieved as the field cannot be made accessible and Unsafe is unavailable");
+                }
 
                 long valueFieldOffset = unsafe.objectFieldOffset(field);
                 return new UnsafeStringMeter(unsafe, valueFieldOffset);

@@ -174,12 +174,12 @@ public class MemoryMeterTest
 
         String s = "test";
 
-        long stringSize = meter.measureDeep(s);
-        long withoutSize = meter.measureDeep(new WithoutAnnotationField(null));
-        assertEquals(stringSize + withoutSize, meter.measureDeep(new WithoutAnnotationField(s)));
+        long stringDeepSize = meter.measureDeep(s);
+        long shallowSize = meter.measure(new WithoutAnnotationField(null));
+        assertEquals(stringDeepSize + shallowSize, meter.measureDeep(new WithoutAnnotationField(s)));
 
-        long withSize = meter.measureDeep(new WithAnnotationField(null));
-        assertEquals(withSize, meter.measureDeep(new WithAnnotationField(s)));
+        shallowSize = meter.measure(new WithAnnotationField(null));
+        assertEquals(shallowSize, meter.measureDeep(new WithAnnotationField(s)));
     }
 
     @Test
@@ -201,7 +201,7 @@ public class MemoryMeterTest
     public void testUnmeteredAnnotationOnImplementedInteface() {
         MemoryMeter meter = MemoryMeter.builder().withGuessing(guess).build();
 
-        assertEquals(0, meter.measureDeep(new WithAnnotatedInterface("test")));
+        assertEquals(0, meter.measureDeep(new WithAnnotatedInterface()));
     }
 
     @Test
@@ -233,7 +233,7 @@ public class MemoryMeterTest
 
         long withoutSize = meter.measureDeep(new WithFieldTypeWithAnnotatedInterface(null));
 
-        WithAnnotatedInterface field = new WithAnnotatedInterface("test");
+        WithAnnotatedInterface field = new WithAnnotatedInterface();
         long withSize = meter.measureDeep(new WithFieldTypeWithAnnotatedInterface(field));
         assertEquals(withoutSize, withSize);
     }
@@ -301,11 +301,6 @@ public class MemoryMeterTest
 
     private static class WithAnnotatedInterface implements AnnotatedInterface {
 
-        private String s;
-
-        public WithAnnotatedInterface(String s) {
-            this.s = s;
-        }
     }
 
     @SuppressWarnings("unused")
@@ -424,23 +419,23 @@ public class MemoryMeterTest
         }
     }
 
-//    @Test
-//    public void testMeasureDeepString() {
-//
-//        String[] strings = new String[] {null,
-//                                         "",
-//                                         "a",
-//                                         "a bit longuer",
-//                                         "significantly longuer",
-//                                         "...... really ...... really .... really ... really .... longuer",
-//                                         "with a chinese character: 我"};
-//
-//        MemoryMeter reference = MemoryMeter.builder().withGuessing(Guess.INSTRUMENTATION).build();
-//        MemoryMeter meter = MemoryMeter.builder().withGuessing(guess).build();
-//
-//        for (String string : strings) {
-//            assertEquals(reference.measureDeep(string), meter.measureDeep(string));
-//            assertEquals(reference.measureDeep(string), meter.measureStringDeep(string));
-//        }
-//     }
+    @Test
+    public void testMeasureDeepString() {
+
+        String[] strings = new String[] {null,
+                                         "",
+                                         "a",
+                                         "a bit longuer",
+                                         "significantly longuer",
+                                         "...... really ...... really .... really ... really .... longuer",
+                                         "with a chinese character: 我"};
+
+        MemoryMeter reference = MemoryMeter.builder().withGuessing(MemoryMeter.Guess.INSTRUMENTATION).doNotOptimizeStringMeasurements().build();
+        MemoryMeter meter = MemoryMeter.builder().withGuessing(guess).build();
+
+        for (String string : strings) {
+            assertEquals(reference.measureDeep(string), meter.measureDeep(string));
+            assertEquals(reference.measureDeep(string), meter.measureStringDeep(string));
+        }
+     }
 }
