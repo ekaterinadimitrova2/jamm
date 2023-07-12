@@ -36,6 +36,10 @@ public final class MemoryMeter {
         return MemoryMeterStrategies.getInstance().hasUnsafe();
     }
 
+    public static boolean useStringOptimization() {
+        return StringMeter.ENABLE;
+    }
+
     /**
      * The different strategies that can be used by a {@code MemoryMeter} instance to measure the shallow size of an object.
      */
@@ -183,11 +187,6 @@ public final class MemoryMeter {
     private final FieldFilter fieldFilter;
 
     /**
-     * Turn ON or OFF the String  measurement optimization
-     */
-    private final boolean optimizeStringMeasurement;
-
-    /**
      * Utility used to optimize the deep measurement of String objects.
      */
     private final StringMeter STRING_METER = StringMeter.newInstance();
@@ -202,8 +201,7 @@ public final class MemoryMeter {
         this(MemoryMeterStrategies.getInstance().getStrategy(builder.guesses),
              Filters.getClassFilters(builder.ignoreKnownSingletons),
              Filters.getFieldFilters(builder.ignoreKnownSingletons, builder.ignoreOuterClassReference, builder.ignoreNonStrongReferences),
-             builder.listenerFactory,
-             builder.optimizeStringMeasurement);
+             builder.listenerFactory);
     }
 
     /**
@@ -222,20 +220,10 @@ public final class MemoryMeter {
                        FieldFilter fieldFilter,
                        MemoryMeterListener.Factory listenerFactory) {
 
-        this(strategy, classFilter, fieldFilter, listenerFactory, true);
-    }
-
-    private MemoryMeter(MemoryMeterStrategy strategy,
-                        FieldAndClassFilter classFilter,
-                        FieldFilter fieldFilter,
-                        MemoryMeterListener.Factory listenerFactory,
-                        boolean optimizeStringMeasurement) {
-
         this.strategy = strategy;
         this.classFilter = classFilter;
         this.fieldFilter = fieldFilter;
         this.listenerFactory = listenerFactory;
-        this.optimizeStringMeasurement = optimizeStringMeasurement;
     }
 
     public static Builder builder() {
@@ -418,7 +406,7 @@ public final class MemoryMeter {
      */
     public long measureStringDeep(String s) {
 
-        if (optimizeStringMeasurement) {
+        if (StringMeter.ENABLE) {
 
             if (s == null)
                 return 0L;
@@ -470,7 +458,7 @@ public final class MemoryMeter {
             Object current = stack.pop();
 
             // Deal with optimizations first.
-            if (optimizeStringMeasurement && current instanceof String) {
+            if (StringMeter.ENABLE && current instanceof String) {
                 total += measureStringWithChild((String) current, listener);
                 continue;
             }
@@ -597,7 +585,6 @@ public final class MemoryMeter {
         private boolean ignoreKnownSingletons = true;
         private boolean ignoreNonStrongReferences = true;
         private MemoryMeterListener.Factory listenerFactory = NoopMemoryMeterListener.FACTORY;
-        private boolean optimizeStringMeasurement = true;
 
         private Builder() {
 
@@ -682,15 +669,6 @@ public final class MemoryMeter {
                 throw new IllegalArgumentException(String.format("the depth must be greater than zero (was %s).", depth));
 
             listenerFactory = new TreePrinter.Factory(depth);
-            return this;
-        }
-
-        /**
-         * Disable String optimization (for testing only).
-         * @return this builder
-         */
-        Builder doNotOptimizeStringMeasurements() {
-            optimizeStringMeasurement = false;
             return this;
         }
     }

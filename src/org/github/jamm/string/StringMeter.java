@@ -21,6 +21,11 @@ import static org.github.jamm.utils.MethodHandleUtils.methodHandle;
 public abstract class StringMeter {
 
     /**
+     * Enable or disable string optimization through the org.github.jamm.optimizeString system property.
+     */
+    public static final boolean ENABLE = Boolean.parseBoolean(System.getProperty("org.github.jamm.string.Optimize", "true"));
+
+    /**
      * The String shallow size stored as a constant to have it compiled directly into the measure method.
      */
     public static final long STRING_SHALLOW_SIZE = MemoryMeterStrategies.getInstance()
@@ -53,8 +58,7 @@ public abstract class StringMeter {
      */
     public static StringMeter newInstance() {
 
-        try
-        {
+        try {
             Field field = String.class.getDeclaredField("value");
 
             Optional<MethodHandle> mayBeTrySetAccessible = MethodHandleUtils.mayBeMethodHandle(Field.class, "trySetAccessible"); // Added in Java 9

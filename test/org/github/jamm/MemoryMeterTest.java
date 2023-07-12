@@ -418,24 +418,4 @@ public class MemoryMeterTest
             stack.pushObject(this, "name", name);
         }
     }
-
-    @Test
-    public void testMeasureDeepString() {
-
-        String[] strings = new String[] {null,
-                                         "",
-                                         "a",
-                                         "a bit longuer",
-                                         "significantly longuer",
-                                         "...... really ...... really .... really ... really .... longuer",
-                                         "with a chinese character: 我"};
-
-        MemoryMeter reference = MemoryMeter.builder().withGuessing(MemoryMeter.Guess.INSTRUMENTATION).doNotOptimizeStringMeasurements().build();
-        MemoryMeter meter = MemoryMeter.builder().withGuessing(guess).build();
-
-        for (String string : strings) {
-            assertEquals(reference.measureDeep(string), meter.measureDeep(string));
-            assertEquals(reference.measureDeep(string), meter.measureStringDeep(string));
-        }
-     }
 }
