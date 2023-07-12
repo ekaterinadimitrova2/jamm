@@ -3,9 +3,9 @@ package org.github.jamm.strategies;
 import java.lang.instrument.Instrumentation;
 import java.lang.invoke.MethodHandle;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.SortedSet;
 
 import org.github.jamm.MemoryMeter.Guess;
 
@@ -151,9 +151,12 @@ public final class MemoryMeterStrategies {
         return unsafeStrategy != null;
     }
 
-    public MemoryMeterStrategy getStrategy(List<Guess> guessList) {
+    public MemoryMeterStrategy getStrategy(SortedSet<Guess> guessSet) {
 
-        Queue<Guess> guesses = new LinkedList<>(guessList);
+        if (guessSet.isEmpty())
+            throw new IllegalArgumentException("The guessSet argument is empty");
+
+        Queue<Guess> guesses = new LinkedList<>(guessSet);
 
         while (true) {
 

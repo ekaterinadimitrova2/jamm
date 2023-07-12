@@ -64,11 +64,6 @@ public abstract class MemoryLayoutBasedStrategy implements MemoryMeterStrategy {
         return computeArraySize(array.length, Double.BYTES);
     }
 
-    @Override
-    public long measureString(String s) {
-        return measure(s);
-    }
-
     /**
      * Measures the shallow memory used by objects of the specified class.
      *

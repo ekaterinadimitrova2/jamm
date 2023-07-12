@@ -210,11 +210,15 @@ public final class VM
 
     private static Unsafe loadUnsafe() {
         try {
-            Field field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-            field.setAccessible(true);
-            return (sun.misc.Unsafe) field.get(null);
-        } catch (Exception e) {
-            return null;
+            return Unsafe.getUnsafe();
+        } catch (final Exception ex) {
+            try {
+                Field field = Unsafe.class.getDeclaredField("theUnsafe");
+                field.setAccessible(true);
+                return (Unsafe) field.get(null);
+            } catch (Exception e) {
+                return null;
+            }
         }
     }
 

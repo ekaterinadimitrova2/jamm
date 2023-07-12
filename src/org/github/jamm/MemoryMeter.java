@@ -3,8 +3,9 @@ package org.github.jamm;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.github.jamm.accessors.FieldAccessor;
 import org.github.jamm.listeners.NoopMemoryMeterListener;
@@ -12,9 +13,6 @@ import org.github.jamm.listeners.TreePrinter;
 import org.github.jamm.strategies.MemoryMeterStrategies;
 import org.github.jamm.string.StringMeter;
 import org.github.jamm.utils.ByteBufferMeasurementUtils;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
 
 /**
  * Utility to measure the heap space used by java objects.
@@ -127,7 +125,7 @@ public final class MemoryMeter {
         },
         /**
          * Mode used to handle SLAB allocated {@code ByteBuffers}, without slices, where the overhead amortized over all
-         * the allocations is negligible and we prefer to under count than over count.
+         * the allocations is negligible and we prefer to undercount than over count.
          */
         SLAB_ALLOCATION_NO_SLICE {
             @Override
@@ -138,7 +136,7 @@ public final class MemoryMeter {
         },
         /**
          * Mode used to handle SLAB allocated {@code ByteBuffers}, with slices, where the overhead amortized over all
-         * the allocations is negligible and we prefer to under count than over count.
+         * the allocations is negligible and we prefer to undercount than over count.
          */
         SLAB_ALLOCATION_SLICE {
             @Override
@@ -159,7 +157,7 @@ public final class MemoryMeter {
     /**
      * The default guesses in accuracy order.
      */
-    public static final List<Guess> BEST = unmodifiableList(asList(Guess.INSTRUMENTATION, Guess.UNSAFE, Guess.SPECIFICATION));
+    public static final SortedSet<Guess> BEST = unmodifiableSortedSet(Guess.INSTRUMENTATION, Guess.UNSAFE, Guess.SPECIFICATION);
 
     /**
      * The accessor used to retrieve field values.
@@ -182,7 +180,7 @@ public final class MemoryMeter {
     /**
      * Filter used to determine which field should be ignored.
      */
-    protected final FieldFilter fieldFilter;
+    private final FieldFilter fieldFilter;
 
     /**
      * Turn ON or OFF the String  measurement optimization
@@ -577,20 +575,24 @@ public final class MemoryMeter {
         }
     }
 
+    @SafeVarargs
+    private static <T> SortedSet<T> unmodifiableSortedSet(T... elements) {
+        SortedSet<T> set = new TreeSet<>();
+        for (T element : elements) {
+            set.add(element);
+        }
+        return Collections.unmodifiableSortedSet(set);
+    }
+
     /**
      * Builder for {@code MemoryMeter} instances
      */
     public static final class Builder {
 
         /**
-         * The default guesses in accuracy order.
-         */
-        private static final List<Guess> BEST = unmodifiableList(asList(Guess.INSTRUMENTATION, Guess.UNSAFE, Guess.SPECIFICATION));
-
-        /**
          * The strategy to perform shallow measurements and its fallback strategies in case the required classes are not available. 
          */
-        private List<Guess> guesses = BEST;
+        private SortedSet<Guess> guesses = BEST;
         private boolean ignoreOuterClassReference;
         private boolean ignoreKnownSingletons = true;
         private boolean ignoreNonStrongReferences = true;
@@ -608,18 +610,21 @@ public final class MemoryMeter {
         /**
          * Specify what should be the strategy used to measure the shallow size of object.
          */
-        public Builder withGuessing(Guess measurementStrategy, Guess... fallbacks) {
+        public Builder withGuessing(Guess strategy, Guess... fallbacks) {
 
-            List<Guess> guessList = new ArrayList<>(fallbacks.length + 1);
-            guessList.add(measurementStrategy);
-            Guess previous = measurementStrategy;
+            if (strategy == null)
+                throw new IllegalArgumentException("The strategy parameter should not be null");
+
+            Guess previous = strategy;
+            SortedSet<Guess> guesseSet = new TreeSet<>();
+            guesseSet.add(strategy);
             for (Guess fallback : fallbacks) {
                 if (!fallback.canBeUsedAsFallbackFrom(previous)) {
                     throw new IllegalArgumentException("The " + fallback + " strategy cannot be used as fallback for the " + previous + " strategy.");
                 }
-                guessList.add(fallback);
+                guesseSet.add(fallback);
             }
-            this.guesses = guessList;
+            this.guesses = guesseSet;
             return this;
         }
 

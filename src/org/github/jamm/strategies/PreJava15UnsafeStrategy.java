@@ -8,11 +8,12 @@ import java.util.Optional;
 import org.github.jamm.CannotMeasureObjectException;
 import org.github.jamm.VM;
 
-import sun.misc.Unsafe;
-
 import static org.github.jamm.strategies.ContendedUtils.isClassAnnotatedWithContended;
 import static org.github.jamm.strategies.ContendedUtils.isContendedEnabled;
 import static org.github.jamm.strategies.ContendedUtils.isFieldAnnotatedWithContended;
+
+import sun.misc.Unsafe;
+
 import static org.github.jamm.utils.MathUtils.roundTo;
 
 /**

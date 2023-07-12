@@ -133,7 +133,7 @@ the given object. It is the safest strategy.
 This strategy requires `java.lang.instrument.Instrumentation` as the `Instrumentation` strategy and will use it 
 to measure non array object. For measuring arrays it will use the `Specification` strategy way.
 This strategy tries to combine the best of both strategies the accuracy and speed of `Instrumentation` for non array object
-and the speed of SPEC for measuring array objects for which all strategy are accurate. For some reason `Instrumentation` is slower for arrays.
+and the speed of SPEC for measuring array objects for which all strategy are accurate. For some reason `Instrumentation` is slower for arrays before Java 17.
 
 ### Unsafe
 
