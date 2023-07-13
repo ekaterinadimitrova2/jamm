@@ -19,9 +19,9 @@ package org.github.jamm.strategies;
 import java.lang.instrument.Instrumentation;
 
 /**
- * Strategy that use {@code java.lang.instrument.Instrumentation} to measure non array object and the SPEC approach to measure arrays.
+ * Strategy that use {@code java.lang.instrument.Instrumentation} to measure non array object and the {@code Specification} approach to measure arrays.
  * This strategy tries to combine the best of both strategies the accuracy and speed of {@code Instrumentation} for non array object
- * and the speed of SPEC for measuring array objects for which all strategy are accurate. For some reason {@code Instrumentation} is slower for arrays.
+ * and the speed of {@code Specification} for measuring array objects for which all strategy are accurate. For some reason {@code Instrumentation} is slower for arrays before Java 17.
  */
 public class InstrumentationAndSpecStrategy extends MemoryLayoutBasedStrategy {
 

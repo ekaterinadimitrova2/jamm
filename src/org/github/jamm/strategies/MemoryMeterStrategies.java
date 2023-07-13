@@ -3,9 +3,9 @@ package org.github.jamm.strategies;
 import java.lang.instrument.Instrumentation;
 import java.lang.invoke.MethodHandle;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
-import java.util.SortedSet;
 
 import org.github.jamm.MemoryMeter.Guess;
 
@@ -32,7 +32,7 @@ public final class MemoryMeterStrategies {
     private final MemoryMeterStrategy instrumentationStrategy;
 
     /**
-     * Strategy relying on instrumentation to measure non array object and the SPEC approach to measure arrays.
+     * Strategy relying on instrumentation to measure non array object and the {@code Specification} approach to measure arrays.
      * {@code null} if the instrumentation was not provided
      */
     private final MemoryMeterStrategy instrumentationAndSpecStrategy;
@@ -93,7 +93,7 @@ public final class MemoryMeterStrategies {
 
         if (mayBeIsHiddenMH.isPresent() && !VM.useEmptySlotsInSuper())
             System.out.println("WARNING: Jamm is starting with the UseEmptySlotsInSupers JVM option disabled."
-                               + " The memory layout created when this option is enabled cannot always be reproduced accurately by the SPEC or UNSAFE strategies."
+                               + " The memory layout created when this option is enabled cannot always be reproduced accurately by the Specification or UNSAFE strategies."
                                + " By consequence the measured sizes when these strategies are used might be off in some cases.");
 
         // The Field layout was optimized in Java 15. For backward compatibility reasons, in 15+, the optimization can be disabled through the {@code -XX:-UseEmptySlotsInSupers} option.
@@ -151,12 +151,14 @@ public final class MemoryMeterStrategies {
         return unsafeStrategy != null;
     }
 
-    public MemoryMeterStrategy getStrategy(SortedSet<Guess> guessSet) {
+    public MemoryMeterStrategy getStrategy(List<Guess> guessList) {
 
-        if (guessSet.isEmpty())
-            throw new IllegalArgumentException("The guessSet argument is empty");
+        if (guessList.isEmpty())
+            throw new IllegalArgumentException("The guessList argument is empty");
 
-        Queue<Guess> guesses = new LinkedList<>(guessSet);
+        Guess.checkOrder(guessList);
+
+        Queue<Guess> guesses = new LinkedList<>(guessList);
 
         while (true) {
 

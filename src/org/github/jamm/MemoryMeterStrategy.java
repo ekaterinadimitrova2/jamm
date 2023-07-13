@@ -9,7 +9,7 @@ public interface MemoryMeterStrategy {
     /**
      * The memory layout detected by JAMM.
      */
-    public static final MemoryLayoutSpecification MEMORY_LAYOUT = MemoryLayoutSpecification.getEffectiveMemoryLayoutSpecification();
+    MemoryLayoutSpecification MEMORY_LAYOUT = MemoryLayoutSpecification.getEffectiveMemoryLayoutSpecification();
 
     /**
      * Measures the shallow memory used by the specified object.
@@ -121,7 +121,7 @@ public interface MemoryMeterStrategy {
     }
 
     /**
-     * Checks if this instance support the {@code computeArraySize} operation.
+     * Checks if this instance supports the {@code computeArraySize} operation.
      * @return {@code true} if this instance support the {@code computeArraySize} operation, {@code false} otherwise.
      */
     default boolean supportComputeArraySize() {

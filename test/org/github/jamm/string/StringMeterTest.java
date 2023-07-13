@@ -1,9 +1,9 @@
 package org.github.jamm.string;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -53,13 +53,13 @@ public class StringMeterTest {
 
         MemoryMeter reference = MemoryMeter.builder().withGuessing(MemoryMeter.Guess.INSTRUMENTATION).build();
         assertFalse(MemoryMeter.useStringOptimization());
-        StringMeter meter = StringMeter.newInstance();
-        SortedSet<Guess> guesses = new TreeSet<>();
+        StringMeter stringMeter = StringMeter.newInstance();
+        List<Guess> guesses = new ArrayList<>();
         guesses.add(guess);
         MemoryMeterStrategy strategy = MemoryMeterStrategies.getInstance().getStrategy(guesses);
 
         for (String string : strings) {
-            assertEquals(reference.measureDeep(string), meter.measure(strategy, string));
+            assertEquals(reference.measureDeep(string), stringMeter.measureDeep(strategy, string));
         }
      }
 }

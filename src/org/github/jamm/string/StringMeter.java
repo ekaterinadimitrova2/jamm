@@ -21,7 +21,7 @@ import static org.github.jamm.utils.MethodHandleUtils.methodHandle;
 public abstract class StringMeter {
 
     /**
-     * Enable or disable string optimization through the org.github.jamm.optimizeString system property.
+     * Enable or disable string optimization through the {@code org.github.jamm.string.Optimize} String system property. {@code true} by default.
      */
     public static final boolean ENABLE = Boolean.parseBoolean(System.getProperty("org.github.jamm.string.Optimize", "true"));
 
@@ -39,7 +39,7 @@ public abstract class StringMeter {
      * @param s the string
      * @return the size of the deep string
      */
-    public long measure(MemoryMeterStrategy strategy, String s) {
+    public long measureDeep(MemoryMeterStrategy strategy, String s) {
         return STRING_SHALLOW_SIZE + measureStringValue(strategy, s);
     }
 

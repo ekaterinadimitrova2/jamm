@@ -16,10 +16,6 @@ import org.github.jamm.testedclasses.PublicClassWithPackageProtectedClassField;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-/**
- * In order to test the correctness of the values being return the tests assume that the correct value is the one 
- * returned by the Instrumentation strategy.
- */
 @RunWith(Parameterized.class)
 public class MemoryMeterTest
 {

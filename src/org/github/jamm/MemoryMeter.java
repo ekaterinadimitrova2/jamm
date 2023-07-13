@@ -3,9 +3,8 @@ package org.github.jamm;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.util.Collections;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.github.jamm.accessors.FieldAccessor;
 import org.github.jamm.listeners.NoopMemoryMeterListener;
@@ -14,9 +13,12 @@ import org.github.jamm.strategies.MemoryMeterStrategies;
 import org.github.jamm.string.StringMeter;
 import org.github.jamm.utils.ByteBufferMeasurementUtils;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
+
 /**
  * Utility to measure the heap space used by java objects.
- * <p>This class support multithreading and can be reused safely.</p>
+ * <p>This class supports multithreading and can be reused safely.</p>
  */
 public final class MemoryMeter {
 
@@ -55,9 +57,9 @@ public final class MemoryMeter {
             }
         },
         /**
-         * Relies on {@code java.lang.instrument.Instrumentation} to measure non array object and the SPEC approach to measure arrays.
+         * Relies on {@code java.lang.instrument.Instrumentation} to measure non array object and the {@code Specification} approach to measure arrays.
          * This strategy tries to combine the best of both strategies the accuracy and speed of {@code Instrumentation} for non array object
-         * and the speed of SPEC for measuring array objects for which all strategy are accurate. For some reason {@code Instrumentation} is slower for arrays.
+         * and the speed of {@code Specification} for measuring array objects for which all strategy are accurate. For some reason {@code Instrumentation} is slower for arrays before Java 17.
          */
         INSTRUMENTATION_AND_SPECIFICATION {
 
@@ -112,6 +114,16 @@ public final class MemoryMeter {
         public boolean canBeUsedAsFallbackFrom(Guess guess) {
             return false;
         }
+
+        public static void checkOrder(List<Guess> guesses) {
+            Guess previous = null;
+            for (Guess guess : guesses) {
+                if (previous != null && !guess.canBeUsedAsFallbackFrom(previous)) {
+                    throw new IllegalArgumentException("The " + guess + " strategy cannot be used as fallback for the " + previous + " strategy.");
+                }
+                previous = guess;
+            }
+        }
     }
 
     /**
@@ -161,7 +173,7 @@ public final class MemoryMeter {
     /**
      * The default guesses in accuracy order.
      */
-    public static final SortedSet<Guess> BEST = unmodifiableSortedSet(Guess.INSTRUMENTATION, Guess.UNSAFE, Guess.SPECIFICATION);
+    public static final List<Guess> BEST = unmodifiableList(asList(Guess.INSTRUMENTATION, Guess.UNSAFE, Guess.SPECIFICATION));
 
     /**
      * The accessor used to retrieve field values.
@@ -411,7 +423,7 @@ public final class MemoryMeter {
             if (s == null)
                 return 0L;
 
-            return STRING_METER.measure(strategy, s);
+            return STRING_METER.measureDeep(strategy, s);
         }
         return measureDeep(s);
     }
@@ -420,6 +432,7 @@ public final class MemoryMeter {
      * Measures the memory usage of the object including referenced objects.
      *
      * <p>If the object is {@code null} the value returned will be zero.</p>
+     * <p>Calling this method is equivalent to calling {@code measureDeep(object, ByteBufferMode)} with a {@code NORMAL} {@code ByteBufferMode}.</p>
      *
      * @param object the object to measure
      * @return the memory usage of @param object including referenced objects
@@ -459,13 +472,15 @@ public final class MemoryMeter {
 
             // Deal with optimizations first.
             if (StringMeter.ENABLE && current instanceof String) {
-                total += measureStringWithChild((String) current, listener);
+                String s = (String) current;
+                long size1 = measureDeep(s, listener);
+                total += size1;
                 continue;
             }
  
             if (current instanceof Measurable) {
                 Measurable measurable = (Measurable) current;
-                total += measureMeasurable(measurable, listener);
+                total += measure(measurable, listener);
                 measurable.addChildrenTo(stack);
                 continue;
             }
@@ -496,13 +511,13 @@ public final class MemoryMeter {
         return total;
     }
 
-    private long measureStringWithChild(String s, MemoryMeterListener listener) {
-        long size = STRING_METER.measure(strategy, s);
+    private long measureDeep(String s, MemoryMeterListener listener) {
+        long size = STRING_METER.measureDeep(strategy, s);
         listener.objectMeasured(s, size);
         return size;
     }
 
-    private long measureMeasurable(Measurable measurable, MemoryMeterListener listener) {
+    private long measure(Measurable measurable, MemoryMeterListener listener) {
         long size = measurable.shallowSize(strategy);
         listener.objectMeasured(measurable, size);
         return size;
@@ -563,15 +578,6 @@ public final class MemoryMeter {
         }
     }
 
-    @SafeVarargs
-    private static <T> SortedSet<T> unmodifiableSortedSet(T... elements) {
-        SortedSet<T> set = new TreeSet<>();
-        for (T element : elements) {
-            set.add(element);
-        }
-        return Collections.unmodifiableSortedSet(set);
-    }
-
     /**
      * Builder for {@code MemoryMeter} instances
      */
@@ -580,7 +586,7 @@ public final class MemoryMeter {
         /**
          * The strategy to perform shallow measurements and its fallback strategies in case the required classes are not available. 
          */
-        private SortedSet<Guess> guesses = BEST;
+        private List<Guess> guesses = BEST;
         private boolean ignoreOuterClassReference;
         private boolean ignoreKnownSingletons = true;
         private boolean ignoreNonStrongReferences = true;
@@ -602,16 +608,14 @@ public final class MemoryMeter {
             if (strategy == null)
                 throw new IllegalArgumentException("The strategy parameter should not be null");
 
-            Guess previous = strategy;
-            SortedSet<Guess> guesseSet = new TreeSet<>();
-            guesseSet.add(strategy);
-            for (Guess fallback : fallbacks) {
-                if (!fallback.canBeUsedAsFallbackFrom(previous)) {
-                    throw new IllegalArgumentException("The " + fallback + " strategy cannot be used as fallback for the " + previous + " strategy.");
-                }
-                guesseSet.add(fallback);
-            }
-            this.guesses = guesseSet;
+            List<Guess> guesseList = new ArrayList<>();
+            guesseList.add(strategy);
+            for (Guess guess : fallbacks)
+                guesseList.add(guess);
+
+            Guess.checkOrder(guesseList);
+
+            this.guesses = guesseList;
             return this;
         }
 
